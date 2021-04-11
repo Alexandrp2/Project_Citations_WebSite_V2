@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Fullstack Mongodb</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <!-- My CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+
+
+</head>
+<body class="container">
+
+  <!-- NAVBAR -->
+  <nav class="nav nav-pills" style="background-color: #464750;">
+    <a class="nav-link" aria-current="page" style="color: #ffffff;" href="../index.html">Citations</a>
+    <a class="nav-link active" style="color: #ffffff;" href="monespace.html">Mon espace</a>
+    <a class="nav-link" style="color: #ffffff;" href="statistiques.html">Statistiques</a>
+  </nav>
+
+
+  <!-- LOGIN -->
+  <nav class="navbar navbar-light bg-light">
+    <div class="row col-12">
+    <form class="container-fluid col-9">
+      <div class="input-group">
+        <span class="input-group-text" id="basic-addon1">@</span>
+        <input type="text" class="form-control" id="login" placeholder="Votre login (mail)" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
+    </form>
+    <button class="btn btn-outline-success col-3" id="validateLogin" type="submit">Se connecter</button>
+    </div>
+  </nav>
+
+
+  <!-- ETAT DE L'AUTHENTIFICATION / MESSAGE -->
+  <h1 id="test" style="margin-top: 20px;">Mon espace</h1>
+  <p id="loginNonActive">Vous n'êtes pas encore authentifié</p>
+  <p id="loginActive"></p>
+
+  <!-- MENU DES DIFFERENTES OPTIONS DANS "MON ESPACE" -->
+  <ul class="nav nav-tabs" style="margin-bottom: 20px;">
+    <li class="nav-item">
+      <a class="nav-link" id="ongletCitations" style="color:#094a04;">Ajouter un favori</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="ongletFavoris" aria-current="page" style="color:#094a04;">Citations favorites</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="ongletCitationsPostees" style="color:#094a04;">Mes posts</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="ongletNewCitation" style="color:#094a04;">Nouvelle citation</a>
+    </li>
+  </ul>
+
+  <!-- AJOUTER AUX FAVORI -->
+  <div class="d-flex flex-row justify-content-start" id="groupAddFavori">
+    <form class="container-fluid" id="formAddFavori">
+      <div class="input-group">
+        <span class="input-group-text">Ajouter un favori</span>
+        <input type="text" class="form-control" id="inputAddFavori" placeholder="Id du favori ici" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
+    </form>
+    <button class="btn btn-outline-success" id="validateFavori" type="submit">Ajouter</button>
+  </div>
+  </br>
+
+  <!-- SUPPRIMER UN FAVORI -->
+  <div class="d-flex flex-row justify-content-start" id="groupDeleteFavori">
+    <form class="container-fluid" id="formDeleteFavori">
+      <div class="input-group">
+        <span class="input-group-text">Supprimer un favori</span>
+        <input type="text" class="form-control" id="inputDeleteFavori" placeholder="Id du favori à supprimer" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
+    </form>
+    <button class="btn btn-outline-success" id="deleteFavori" type="submit">Supprimer</button>
+  </div>
+  </br>
+
+  <!-- SUPPRIMER UNE CITATION -->
+  <div class="d-flex flex-row justify-content-start" id="groupDeleteCitation">
+    <form class="container-fluid" id="formDeleteCitation">
+      <div class="input-group">
+        <span class="input-group-text">Supprimer une citation</span>
+        <input type="text" class="form-control" id="inputDeleteCitation" placeholder="Id de la citation à supprimer" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
+    </form>
+    <button class="btn btn-outline-success" id="deleteCitation" type="submit">Supprimer</button>
+  </div>
+  </br>
+
+
+  <!-- LISTE DES CITATIONS / FAVORIS -->
+  <table id="tableCitations">
+    <tr>
+      <th>Id</th>
+      <th>Citation</th>
+      <th>Auteur</th>
+      <th>Date</th>
+    </tr>
+  </table>
+
+  <!-- NOUVELLE CITATION -->
+  <div class="input-group mb-3">
+    <div class="input-group-prepend col-3">
+      <span class="input-group-text" id="auteurLabel">Auteur</span>
+    </div>
+    <input type="text" class="form-control" placeholder="Auteur" id="auteurInput">
+  </div>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend col-3">
+      <span class="input-group-text" id="anneeLabel">Année</span>
+    </div>
+    <input type="text" class="form-control" placeholder="Année de la citation" id="anneeInput">
+  </div>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend col-3">
+      <span class="input-group-text" id="nationaliteLabel">Nationalité</span>
+    </div>
+    <input type="text" class="form-control" placeholder="Nationalité de l'auteur" id="nationaliteInput">
+  </div>
+  <div class="input-group">
+    <div class="input-group-prepend col-3">
+      <span class="input-group-text" id="citationLabel" style="height: 70px;">Citation</span>
+    </div>
+    <textarea class="form-control" id="citationInput" aria-label="Citation" placeholder="Citation de l'auteur" style="height: 70px;"></textarea>
+  </div>
+  </br>
+  <button type="button" class="btn btn-primary" id="ButtonAddNewCitation">J'ajoute la citation</button>
+
+
+  <!-- TOAST AJOUT FAVORI OK -->
+  <div class="toast" id="toastAjout" role="alert" aria-live="assertive" aria-atomic="true" style="box-shadow: 10px 5px 5px #464750;">
+    <div class="toast-header">
+      <strong class="me-auto">Info</strong>
+      <small>Ajouté aux favoris</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      La citation a été ajoutée aux favoris.
+    </div>
+  </div>
+
+  <!-- TOAST DELETE FAVORI OK -->
+  <div class="toast" id="toastDeleteFavori" role="alert" aria-live="assertive" aria-atomic="true" style="box-shadow: 10px 5px 5px #464750;">
+    <div class="toast-header">
+      <strong class="me-auto">Info</strong>
+      <small>Supprimé des favoris</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      La citation a été supprimée des favoris.
+    </div>
+  </div>
+
+  <!-- TOAST DELETE CITATION OK -->
+  <div class="toast" id="toastDeleteCitation" role="alert" aria-live="assertive" aria-atomic="true" style="box-shadow: 10px 5px 5px #464750;">
+    <div class="toast-header">
+      <strong class="me-auto">Info</strong>
+      <small>Suppression de la citation</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      Votre demande a été traitée.
+    </div>
+  </div>
+
+  <!-- TOAST MISSING ID -->
+  <div class="toast" id="toastMissiingId" role="alert" aria-live="assertive" aria-atomic="true" style="box-shadow: 10px 5px 5px #464750;position: center;">
+    <div class="toast-header">
+      <strong class="me-auto">Info</strong>
+      <small>Renseignez un ID</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+      Renseignez un ID.
+    </div>
+  </div>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+  <!-- My JS -->
+  <script src="../js/scriptMonespace.js"></script>
+     
+</body>
+</html>
