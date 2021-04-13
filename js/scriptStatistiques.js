@@ -21,7 +21,8 @@ $(document).ready(function(){
     $.ajax({
         type: 'GET',
         url: _URL + 'citation/stats/top3citation',
-        dataType: 'json',
+        dataType: "json",
+        crossDomain: false,
         cache: false,
         success: function(citations) {
             $.each(citations, function(index, citation) {
@@ -40,7 +41,8 @@ $(document).ready(function(){
     $.ajax({
         type: 'GET',
         url: _URL + 'citation/stats/bestlogin',
-        dataType: 'json',
+        dataType: "json",
+        crossDomain: false,
         cache: false,
         success: function(citations) {
             $.each(citations, function(index, citation) {
@@ -57,7 +59,8 @@ $(document).ready(function(){
     $.ajax({
         type: 'GET',
         url: _URL + 'citation/stats/topquotedauthor',
-        dataType: 'json',
+        dataType: "json",
+        crossDomain: false,
         cache: false,
         success: function(citations) {
             $.each(citations, function(index, citation) {
@@ -75,7 +78,8 @@ $(document).ready(function(){
     $.ajax({
         type: 'GET',
         url: _URL + 'citation/stats/favouriteauthor',
-        dataType: 'json',
+        dataType: "json",
+        crossDomain: false,
         cache: false,
         success: function(citations) {
             $.each(citations, function(index, citation) {
@@ -94,7 +98,8 @@ $(document).ready(function(){
     $.ajax({
         type: 'GET',
         url: _URL + 'citation/stats/anonymCitations',
-        dataType: 'json',
+        dataType: "json",
+        crossDomain: false,
         cache: false,
         success: function(citations) {
             $.each(citations, function(index, citation) {

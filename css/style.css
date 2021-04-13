@@ -1,25 +1,25 @@
-/*table {
-	font-family: arial, sans-serif;
-	border-collapse: collapse;
-	width: 40%;
-}
-
-td, th {
-	border: 1px solid #dddddd;
-	text-align: left;
-	padding: 8px;
-}
-
-tr:nth-child(even) {
-	background-color: #dddddd;
-}*/
-
 body{
-	background-color: #929798;
+	background-color: #05385f;
 }
+
+.nav-pills{
+	background-color:#05385f;
+}
+.nav-link{
+	color: #ffffff;
+}
+p, h1, h2{
+	color: #b4babb;
+}
+h1, h2{
+	margin-top: 20px;
+}
+h2{
+	margin-bottom: 20px;
+}
+
 table, th, td {
 	border: 1px solid PowderBlue;
-
 }
 th, td {
 	padding: 15px;
@@ -35,12 +35,18 @@ tr{
 tr:hover {
 	background-color: #b4babb;
 }
+
 .badge{
 	padding: 15px;
 	margin-bottom: 20px;
 	font-size: 14px;
 	letter-spacing: 1px;
-	background-color: darkgrey;
+	background-color: Azure;
+	color: #05385f;
+}
+
+#basic-addon1{
+	background-color: Azure;
 }
 
 

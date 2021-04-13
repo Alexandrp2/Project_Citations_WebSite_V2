@@ -33,6 +33,9 @@ function hideformNewCitation(){
     $ButtonAddNewCitation.hide();
 }
 
+function deleteCitation(idCitation){
+    alert('id de la cittion = ' + idCitation);
+}
 
 $(document).ready(function(){
 
@@ -90,7 +93,7 @@ $(document).ready(function(){
                 type: 'GET',
                 url: _URL + 'citations',
                 dataType: 'json',
-                cache: false,
+                crossDomain: false,
                 success: function(citations) {
                     $.each(citations, function(index, citation) {
                         let id = citation._id.$oid;
@@ -168,8 +171,11 @@ $(document).ready(function(){
             $.ajax({
                 type: 'POST',
                 url: _URL + 'citation/favoris/mesCitations',
+                dataType: "json",
+                crossDomain: false,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
                 },
                 data: JSON.stringify(jsonData),
                 success: function(citations) {
@@ -186,7 +192,9 @@ $(document).ready(function(){
                             annee="N/A";
                         }
 
-                        $tableCitations.append('<tr><td>'+ id + '</td><td>' + citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
+                        //$tableCitations.append('<tr><td>'+ id + '</td><td>' + citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
+                        $tableCitations.append('<tr><td><button class="btn btn-outline-info" onclick="deleteCitation(\'' + id + '\')">Se connecter</button></td><td>' + citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
+
                     });
                 }
             });
@@ -234,8 +242,11 @@ $(document).ready(function(){
             $.ajax({
                 type: 'POST',
                 url: _URL + 'citation/post/mesCitations',
+                dataType: "json",
+                crossDomain: false,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
                 },
                 data: JSON.stringify(jsonData),
                 success: function(citations) {
@@ -318,8 +329,11 @@ $(document).ready(function(){
                 $.ajax({
                     type: 'POST',
                     url: _URL + 'citation/favoris/add',
+                    dataType: "json",
+                    crossDomain: false,
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
                     },
                     data: JSON.stringify(jsonData),
                     success: function() {
@@ -346,8 +360,11 @@ $(document).ready(function(){
                 $.ajax({
                     type: 'POST',
                     url: _URL + 'citation/favoris/del',
+                    dataType: "json",
+                    crossDomain: false,
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
                     },
                     data: JSON.stringify(jsonData),
                     success: function() {
@@ -374,8 +391,11 @@ $(document).ready(function(){
                 $.ajax({
                     type: 'DELETE',
                     url: _URL + 'citation/delete/macitation',
+                    dataType: "json",
+                    crossDomain: false,
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
                     },
                     data: JSON.stringify(jsonData),
                     success: function() {
@@ -400,11 +420,6 @@ $(document).ready(function(){
             if(citation.length === 0){
                 alert("La citation est obligatoire");
             } else {
-                //author === null ? "null": author;
-                //annee === null ? "null": annee;
-                //nationalite.length === 0 ? "null": nationalite;
-                //citation.length === 0 ? "null": citation;
-
                 // Send request
                 // CREATE A NEW CITATION
                 const jsonData = {
@@ -417,8 +432,11 @@ $(document).ready(function(){
                 $.ajax({
                     type: 'POST',
                     url: _URL + 'citation/ajouter',
+                    dataType: "json",
+                    crossDomain: false,
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
                     },
                     data: JSON.stringify(jsonData),
                     success: function() {

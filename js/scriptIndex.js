@@ -25,8 +25,30 @@ $(document).ready(function(){
     type: 'GET',
     url: _URL + 'citations',
     dataType: 'json',
-    cache: false,
-    success: function(citations) {
+    crossDomain: false,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json"
+    },
+    statusCode: {
+      200: function(citations) {
+        $.each(citations, function(index, citation) {
+          let auteur = citation.author;
+          let annee = citation.year;
+          let citatio = citation.citation;
+
+          if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
+            auteur='Inconnu';
+          }
+          if (annee === undefined  || annee === null || annee.length === 0 ) {
+            annee="N/A";
+          }
+
+          $tableCitations.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
+        });
+      }
+    }
+    /*success: function(citations) {
       $.each(citations, function(index, citation) {
         let auteur = citation.author;
         let annee = citation.year;
@@ -41,7 +63,7 @@ $(document).ready(function(){
 
         $tableCitations.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
       });
-    }
+    }*/
   });
 
   // GET ALL CITATIONS BY Auteur AND/OR String
@@ -71,8 +93,11 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: _URL + 'citations/recherche/auteur',
+        dataType: "json",
+        crossDomain: false,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Accept: "application/json"
         },
         data: JSON.stringify(jsonData),
         success: function(citations) {
@@ -112,8 +137,11 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: _URL + 'citations/recherche/string',
+        dataType: 'json',
+        crossDomain: false,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Accept: "application/json"
         },
         data: JSON.stringify(jsonData),
         success: function(citations) {
@@ -155,8 +183,11 @@ $(document).ready(function(){
       $.ajax({
         type: 'POST',
         url: _URL + 'citations/recherche/auteuretstring',
+        dataType: 'json',
+        crossDomain: false,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Accept: "application/json"
         },
         data: JSON.stringify(jsonData),
         success: function(citations) {
