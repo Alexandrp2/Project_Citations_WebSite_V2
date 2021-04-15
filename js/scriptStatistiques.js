@@ -8,6 +8,29 @@ const _URL = 'http://localhost:5000/';
  */
 // const _URL = 'https://apicitations.azurewebsites.net/';
 
+function sendcookie(){
+    $.ajax({
+        type: 'POST',
+        url: _URL + '/setsess/mimi',
+        dataType: "json",
+        crossDomain: false,
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json"
+        }
+    });
+}
+
+// document.cookie="username=John Doe; path=/; secure";
+// sessionStorage.setItem("lastname", "Smith");
+
+// $("#sess").text(document.cookie);
+// $("#sess").text(sessionStorage.getItem("lastname"))
+// let username = sessionStorage.getItem("lastname");
+// sessionStorage.removeItem("key");
+// sessionStorage.clear();
+// Encode/ decode base-64 => window.btoa(str) / window.atob(enc)
+
 $(document).ready(function(){
 
     var $tableTopFavoris = $('#tableTopFavoris');
@@ -26,7 +49,6 @@ $(document).ready(function(){
         cache: false,
         success: function(citations) {
             $.each(citations, function(index, citation) {
-
                 let id = citation._id.$oid;
                 let citatio = citation.citation;
                 let Fav = citation.savedInFavorites;
