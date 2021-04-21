@@ -1,25 +1,3 @@
-/*
- * Comment of the following line if you use the distant Flask API (hosted in Azure)
- */
-const _URL = 'http://localhost:5000/';
-
-/*
- * Remove the comment of the following line if you use the distant Flask API (hosted in Azure)
- */
-// const _URL = 'https://apicitations.azurewebsites.net/';
-
-function sendcookie(){
-    $.ajax({
-        type: 'POST',
-        url: _URL + '/setsess/mimi',
-        dataType: "json",
-        crossDomain: false,
-        headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json"
-        }
-    });
-}
 
 // document.cookie="username=John Doe; path=/; secure";
 // sessionStorage.setItem("lastname", "Smith");
@@ -33,117 +11,171 @@ function sendcookie(){
 
 $(document).ready(function(){
 
-    var $tableTopFavoris = $('#tableTopFavoris');
-    var $bestMember = $('#bestMember');
-    var $quoteauthor = $('#quoteauthor');
-    var $favouriteauthor = $("#favouriteauthor");
-    var $anonymCitations = $("#anonymCitations");
+    let $tableTopFavoris = $('#tableTopFavoris');
+    let $bestMember = $('#bestMember');
+    let $quoteauthor = $('#quoteauthor');
+    let $favouriteauthor = $("#favouriteauthor");
+    let $anonymCitations = $("#anonymCitations");
+    let $badge = $('.badge');
+    let $accessStatDenied = $('#accessStatDenied');
 
+    $badge.hide();
+    $tableTopFavoris.hide();
 
-    // GET TOP 3
-    $.ajax({
-        type: 'GET',
-        url: _URL + 'citation/stats/top3citation',
-        dataType: "json",
-        crossDomain: false,
-        cache: false,
-        success: function(citations) {
-            $.each(citations, function(index, citation) {
-                let id = citation._id.$oid;
-                let citatio = citation.citation;
-                let Fav = citation.savedInFavorites;
-                $tableTopFavoris.append('<tr><td>' + id + '</td><td>'+ citatio + '</td><td>'+ Fav + '</td></tr>');
+    if ( sessionStorage.getItem("sid") !== null ) {
 
-            });
-        }
-    });
+        $accessStatDenied.html("");
 
-    // GET BEST USER
+        // GET TOP 3
+        $.ajax({
+            type: 'GET',
+            url: _URL + 'citation/stats/top3citation',
+            dataType: "json",
+            contentType: "application/json",
+            crossDomain: false,
+            headers: {
+                Accept: "application/json",
+                Authorization: "Basic " + sessionStorage.getItem("sid")
+            },
+            statusCode: {
+                200: function (citations) {
+                    $.each(citations, function (index, citation) {
+                        let auteur = citation.author;
+                        let citatio = citation.citation;
+                        let fav = citation.savedInFavorites;
+                        $tableTopFavoris.append('<tr><td>' + auteur + '</td><td>' + citatio + '</td><td>' + fav + '</td></tr>');
+                    });
+                    $badge.show();
+                    $tableTopFavoris.show();
+                },
+                401: function () {
+                    $badge.hide();
+                    $tableTopFavoris.hide();
+                    $accessStatDenied.html("Vous avez été déconnecté");
+                }
+            }
+        });
 
-    $.ajax({
-        type: 'GET',
-        url: _URL + 'citation/stats/bestlogin',
-        dataType: "json",
-        crossDomain: false,
-        cache: false,
-        success: function(citations) {
-            $.each(citations, function(index, citation) {
+        // GET BEST USER
 
-                let id = citation._id;
-                let nombre = citation.count;
-                $bestMember.append('<p></span>' + id + ' est le membre le plus actif avec un total de '+ nombre + ' citations mises en favoris</p>');
-            });
-        }
-    });
+        $.ajax({
+            type: 'GET',
+            url: _URL + 'citation/stats/bestlogin',
+            dataType: "json",
+            crossDomain: false,
+            headers: {
+                Accept: "application/json",
+                Authorization: "Basic " + sessionStorage.getItem("sid")
+            },
+            statusCode: {
+                200: function (citations) {
+                    $.each(citations, function (index, citation) {
+                        let id = citation._id;
+                        let nombre = citation.count;
+                        $bestMember.append('<p></span>' + id + ' est le membre le plus actif avec un total de ' + nombre + ' citations mises en favoris</p>');
+                    });
+                    $badge.show();
+                    $tableTopFavoris.show();
+                },
+                401: function () {
+                    $badge.hide();
+                    $tableTopFavoris.hide();
+                    $accessStatDenied.html("Vous avez été déconnecté");
+                }
+            }
+        });
 
-    // GET BEST QUOTED AUTHOR
+        // GET BEST QUOTED AUTHOR
 
-    $.ajax({
-        type: 'GET',
-        url: _URL + 'citation/stats/topquotedauthor',
-        dataType: "json",
-        crossDomain: false,
-        cache: false,
-        success: function(citations) {
-            $.each(citations, function(index, citation) {
+        $.ajax({
+            type: 'GET',
+            url: _URL + 'citation/stats/topquotedauthor',
+            dataType: "json",
+            crossDomain: false,
+            headers: {
+                Accept: "application/json",
+                Authorization: "Basic " + sessionStorage.getItem("sid")
+            },
+            statusCode: {
+                200: function (citations) {
+                    $.each(citations, function (index, citation) {
+                        let id = citation._id;
+                        let nombre = citation.count;
+                        $quoteauthor.append('<p> L\'auteur le plus cité est ' + id + ' avec un total de ' + nombre + ' citations</p>');
+                    });
+                    $badge.show();
+                    $tableTopFavoris.show();
+                },
+                401: function () {
+                    $badge.hide();
+                    $tableTopFavoris.hide();
+                    $accessStatDenied.html("Vous avez été déconnecté");
+                }
+            }
+        });
 
-                let id = citation._id;
-                let nombre = citation.count;
-                $quoteauthor.append('<p> L\'auteur le plus cité est ' + id + ' avec un total de '+ nombre + ' citations</p>');
+        // GET AUTHOR TOP FAVORITE QUOTE
 
-            });
-        }
-    });
+        $.ajax({
+            type: 'GET',
+            url: _URL + 'citation/stats/favouriteauthor',
+            dataType: "json",
+            crossDomain: false,
+            headers: {
+                Accept: "application/json",
+                Authorization: "Basic " + sessionStorage.getItem("sid")
+            },
+            statusCode: {
+                200: function (citations) {
+                    $.each(citations, function (index, citation) {
+                        let id = citation._id;
+                        let nombre = citation.nbLikers;
+                        $favouriteauthor.append('<p> L\'auteur le plus mis en favoris est ' + id + ' qui a été ' + nombre + '  fois mis en favoris</p>');
+                    });
+                    $badge.show();
+                    $tableTopFavoris.show();
+                },
+                401: function () {
+                    $badge.hide();
+                    $tableTopFavoris.hide();
+                    $accessStatDenied.html("Vous avez été déconnecté");
+                }
+            }
+        });
 
-    // GET AUTHOR TOP FAVORITE QUOTE
+        // GET NB ANONYM QUOTES
 
-    $.ajax({
-        type: 'GET',
-        url: _URL + 'citation/stats/favouriteauthor',
-        dataType: "json",
-        crossDomain: false,
-        cache: false,
-        success: function(citations) {
-            $.each(citations, function(index, citation) {
-
-                let id = citation._id;
-                let nombre = citation.nbLikers;
-
-                $favouriteauthor.append('<p> L\'auteur le plus mis en favoris est ' + id + ' qui a été '+ nombre + '  fois mis en favoris</p>');
-
-            });
-        }
-    });
-
-    // GET NB ANONYM QUOTES
-
-    $.ajax({
-        type: 'GET',
-        url: _URL + 'citation/stats/anonymCitations',
-        dataType: "json",
-        crossDomain: false,
-        cache: false,
-        success: function(citations) {
-            $.each(citations, function(index, citation) {
-
-                //let id = citation._id;
-                let nombre = citation.nbCitationSansAuteur;
-
-                $anonymCitations.append('<p> Il y a '+ nombre + ' citations anonymes</p>');
-
-            });
-        }
-    });
+        $.ajax({
+            type: 'GET',
+            url: _URL + 'citation/stats/anonymCitations',
+            dataType: "json",
+            crossDomain: false,
+            headers: {
+                Accept: "application/json",
+                Authorization: "Basic " + sessionStorage.getItem("sid")
+            },
+            statusCode: {
+                200: function (citations) {
+                    $.each(citations, function (index, citation) {
+                        //let id = citation._id;
+                        let nombre = citation.nbCitationSansAuteur;
+                        $anonymCitations.append('<p> Il y a ' + nombre + ' citations anonymes</p>');
+                    });
+                    $badge.show();
+                    $tableTopFavoris.show();
+                },
+                401: function () {
+                    $badge.hide();
+                    $tableTopFavoris.hide();
+                    $accessStatDenied.html("Vous avez été déconnecté");
+                }
+            }
+        });
+    }
+    // when sessionStorage is empty
+    else {
+        $badge.hide();
+        $tableTopFavoris.hide();
+        $accessStatDenied.html("L'accès à cette ressource est réservée aux personnes connctées");
+    }
 });
-
-/*function postData() {
-    var jsonData = {"numberPlacesTot":1000,"numberPlacesAvailable":1000,"villeDepart":"monTestJS","villeArrivee":"Lille","heureDepart":1140};
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-       document.getElementById("demo").innerHTML = this.responseText;
-      }
-    };
-    xhttp.open("GET", "ajax_info.txt", true);
-    xhttp.send();
-  }*/

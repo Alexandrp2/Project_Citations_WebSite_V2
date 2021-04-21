@@ -4,12 +4,15 @@ body{
 
 .nav-pills{
 	background-color:#05385f;
+	border-bottom: 2px solid Azure;
+
 }
 .nav-link{
 	color: #ffffff;
 }
-p, h1, h2{
+p, div, h1, h2{
 	color: #b4babb;
+	font-weight: normal;
 }
 h1, h2{
 	margin-top: 20px;
@@ -40,6 +43,7 @@ tr:hover {
 	padding: 15px;
 	margin-bottom: 20px;
 	font-size: 14px;
+	font-weight: normal;
 	letter-spacing: 1px;
 	background-color: Azure;
 	color: #05385f;

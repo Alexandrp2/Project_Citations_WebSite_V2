@@ -1,14 +1,4 @@
-/*
- * Comment of the following line if you use the distant Flask API (hosted in Azure)
- */
-const _URL = 'http://localhost:5000/';
-
-/*
- * Remove the comment of the following line if you use the distant Flask API (hosted in Azure)
- */
-// const _URL = 'https://apicitations.azurewebsites.net/';
-
-let $tableCitations = $('#tableCitations');
+let $tableCitations = $("#tableCitations");
 let $tableCitationsRecherche = $('#tableCitationsRecherche');
 let $searchMsg = $('#searchMsg');
 
@@ -16,72 +6,41 @@ let $searchMsg = $('#searchMsg');
 
 $(document).ready(function(){
 
-  $tableCitations.show();
-  $tableCitationsRecherche.hide();
+  hideTablesinIndex();
 
   // GET ALL CITATIONS
 
   $.ajax({
-    type: 'GET',
-    url: _URL + 'citations',
-    dataType: 'json',
+    type: "GET",
+    url: _URL + "citations",
+    dataType: "json",
     crossDomain: false,
     headers: {
-      "Content-Type": "application/json",
       Accept: "application/json"
     },
     statusCode: {
       200: function(citations) {
-        $.each(citations, function(index, citation) {
-          let auteur = citation.author;
-          let annee = citation.year;
-          let citatio = citation.citation;
-
-          if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-            auteur='Inconnu';
-          }
-          if (annee === undefined  || annee === null || annee.length === 0 ) {
-            annee="N/A";
-          }
-
-          $tableCitations.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-        });
+        status200Citations(citations);
       }
     }
-    /*success: function(citations) {
-      $.each(citations, function(index, citation) {
-        let auteur = citation.author;
-        let annee = citation.year;
-        let citatio = citation.citation;
-
-        if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-          auteur='Inconnu';
-        }
-        if (annee === undefined  || annee === null || annee.length === 0 ) {
-          annee="N/A";
-        }
-
-        $tableCitations.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-      });
-    }*/
   });
 
   // GET ALL CITATIONS BY Auteur AND/OR String
 
   $("#buttonSearch").click(function(){
 
-    let authorToSearch = $('#auteur').val();
-    let stringToSearch = $('#chaineARechercher').val();
+    let authorToSearch = escapeHtmlSpecialChars($('#auteur').val());
+    let stringToSearch = escapeHtmlSpecialChars($('#chaineARechercher').val());
 
+    hideTablesinIndex();
     $("input:text").val("");
+    $('#noResultMsg').text("");
     $("td").remove();
 
-    // Author  AND NO  string
-    if( (authorToSearch.length > 0) && (stringToSearch.length === 0 || stringToSearch === null))
-    {
-      $tableCitations.hide();
-      $tableCitationsRecherche.show();
 
+    // Author  AND NO  string
+    if( (authorToSearch.length > 0) && (stringToSearch.length === 0 || stringToSearch === null) )
+    {
       $searchMsg.html(
           "<i>Votre recherche : auteur contenant <b>"
           + authorToSearch
@@ -94,27 +53,19 @@ $(document).ready(function(){
         type: 'POST',
         url: _URL + 'citations/recherche/auteur',
         dataType: "json",
+        contentType: 'application/json',
         crossDomain: false,
         headers: {
-          "Content-Type": "application/json",
           Accept: "application/json"
         },
         data: JSON.stringify(jsonData),
-        success: function(citations) {
-          $.each(citations, function(index, citation) {
-            let auteur = citation.author;
-            let annee = citation.year;
-            let citatio = citation.citation;
-
-            if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-              auteur='Inconnu';
-            }
-            if (annee === undefined  || annee === null || annee.length === 0 ) {
-              annee="N/A";
-            }
-
-            $tableCitationsRecherche.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-          });
+        statusCode: {
+          200: function(citations) {
+            status200Citations(citations);
+          },
+          204: function() {
+            status204Citations();
+          }
         }
       });
     }
@@ -122,9 +73,6 @@ $(document).ready(function(){
     // String  AND NO  author
     else if( (stringToSearch.length > 0) && (authorToSearch.length == 0 || authorToSearch === null))
     {
-
-      $tableCitations.hide();
-      $tableCitationsRecherche.show();
 
       $searchMsg.html(
           "<i>Votre recherche : citation contenant <b>"
@@ -138,27 +86,20 @@ $(document).ready(function(){
         type: 'POST',
         url: _URL + 'citations/recherche/string',
         dataType: 'json',
+        contentType: 'application/json',
         crossDomain: false,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json"
         },
         data: JSON.stringify(jsonData),
-        success: function(citations) {
-          $.each(citations, function(index, citation) {
-            let auteur = citation.author;
-            let annee = citation.year;
-            let citatio = citation.citation;
-
-            if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-              auteur='Inconnu';
-            }
-            if (annee === undefined  || annee === null || annee.length === 0 ) {
-              annee="N/A";
-            }
-
-            $tableCitationsRecherche.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-          });
+        statusCode: {
+          200: function(citations) {
+            status200Citations(citations);
+          },
+          204: function() {
+            status204Citations();
+          }
         }
       });
     }
@@ -166,9 +107,6 @@ $(document).ready(function(){
     // Author  AND  string
     else if ( (authorToSearch.length > 0) && (stringToSearch.length > 0) )
     {
-
-      $tableCitations.hide();
-      $tableCitationsRecherche.show();
 
       $searchMsg.html(
           "<i>Votre recherche : auteur contenant <b>"
@@ -184,34 +122,25 @@ $(document).ready(function(){
         type: 'POST',
         url: _URL + 'citations/recherche/auteuretstring',
         dataType: 'json',
+        contentType: 'application/json',
         crossDomain: false,
         headers: {
-          "Content-Type": "application/json",
           Accept: "application/json"
         },
         data: JSON.stringify(jsonData),
-        success: function(citations) {
-          $.each(citations, function(index, citation) {
-            let auteur = citation.author;
-            let annee = citation.year;
-            let citatio = citation.citation;
-
-            if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-              auteur='Inconnu';
-            }
-            if (annee === undefined  || annee === null || annee.length === 0 ) {
-              annee="N/A";
-            }
-
-            $tableCitationsRecherche.append('<tr><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-          });
+        statusCode: {
+          200: function(citations) {
+            status200Citations(citations);
+          },
+          204: function() {
+            status204Citations();
+          }
         }
       });
     }
     else{
-      alert('Rechargez la page ou renseignez au moins un des 2 champs');
-      $tableCitations.show();
-      $tableCitationsRecherche.hide();
+      hideTablesinIndex();
+      alert('Rafraichissez la page, ou renseignez au moins l\'un des 2 champs');
       $searchMsg.html("");
     }
 

@@ -1,16 +1,17 @@
-/*
- * Comment of the following line if you use the distant Flask API (hosted in Azure)
- */
-const _URL = 'http://localhost:5000/';
 
-/*
- * Remove the comment of the following line if you use the distant Flask API (hosted in Azure)
- */
-// const _URL = 'https://apicitations.azurewebsites.net/';
+let $tableCitationsMonEspace = $('#tableCitationsMonEspace');
+let $loginInput = $('#login');
+let $passwordInput = $('#password');
+let $LoginInstruction = $('#loginInstruction');
+let $passwordInstruction = $('#passwordInstruction');
+let $msgConnection = $('#msgConnect');
+let $loginActive = $('#loginActive');
+let $loginNonActive = $('#loginNonActive');
+let $toastInfoMonEspaceMessage = $('#toastInfoMonEspaceMessage');
+let $toastInfoMonEspace = $('#toastInfoMonEspace');
+let $msgNoContentToShow = $('#msgNoContentToShow');
 
-let login = "";
-let $tableCitations = $('#tableCitations');
-// Form
+// Form new citation
 let $formNewCitationLabelAuteur = $('#auteurLabel');
 let $formNewCitationInputAuteur = $('#auteurInput');
 let $formNewCitationLabelAnnee = $('#anneeLabel');
@@ -21,45 +22,152 @@ let $formNewCitationLabelCitation = $('#citationLabel');
 let $formNewCitationInputCitation = $('#citationInput');
 let $ButtonAddNewCitation = $('#ButtonAddNewCitation');
 
-function hideformNewCitation(){
-    $formNewCitationLabelAuteur.hide();
-    $formNewCitationInputAuteur.hide();
-    $formNewCitationLabelAnnee.hide();
-    $formNewCitationInputAnnee.hide();
-    $formNewCitationLabelNationalite.hide();
-    $formNewCitationInputNationalite.hide();
-    $formNewCitationLabelCitation.hide();
-    $formNewCitationInputCitation.hide();
-    $ButtonAddNewCitation.hide();
-}
-
-function deleteCitation(idCitation){
-    alert('id de la cittion = ' + idCitation);
-}
-
 $(document).ready(function(){
 
-    $("#formAddFavori").hide();
-    $("#validateFavori").hide();
-
-    $("#formDeleteFavori").hide();
-    $('#deleteFavori').hide();
-
-    $("#formDeleteCitation").hide();
-    $('#deleteCitation').hide();
-
+    $LoginInstruction.hide();
+    $passwordInstruction.hide();
+    $msgConnection.hide();
     hideformNewCitation();
+    $tableCitationsMonEspace.hide();
 
-    $tableCitations.hide();
-    
+    welcomeMessage();
+
+    $loginInput.on({
+        focus: function(){
+            $msgConnection.hide();
+            $LoginInstruction.show();
+        },
+        mouseleave: function(){
+            $LoginInstruction.hide();
+        }
+    });
+    $passwordInput.on({
+        focus: function(){
+            $msgConnection.hide();
+            $passwordInstruction.show();
+        },
+        mouseleave: function(){
+            $passwordInstruction.hide();
+        }
+    });
+
+    $("#validateRegister").click(function(){
+
+        let login = escapeHtmlSpecialChars($loginInput.val());
+        let pwd = escapeHtmlSpecialChars($passwordInput.val());
+        let msgFailure = "";
+
+        $passwordInstruction.hide();
+        $LoginInstruction.hide();
+
+        if (login.length < 5) {
+            msgFailure = msgFailure + "Le login ne respecte pas la contrainte de longueur.</br>";
+        }
+        if (pwd.length < 8 || pwd.length > 64 || !isPasswordMatchingConstraints(pwd)) {
+            msgFailure = msgFailure + "Le mot de passe ne respecte pas les contraintes.";
+        }
+
+        if( msgFailure.length > 0) {
+            $msgConnection.html(msgFailure);
+            $msgConnection.show();
+        } else {
+            $msgConnection.html('')
+            const jsonData = {"login": login, "pwd": pwd};
+
+            $.ajax({
+                type: 'POST',
+                url: _URL + 'register',
+                dataType: 'json',
+                contentType: 'application/json',
+                crossDomain: false,
+                headers: {
+                    Accept: "application/json"
+                },
+                data: JSON.stringify(jsonData),
+                statusCode: {
+                    201: function(response) {
+                        status20xLoginAndRegister(login, response);
+                    },
+                    403: function() {
+                        $msgConnection.html("Vous n'avez pas pu être enregistré(e) car ce pseudo existe déjà.");
+                        $msgConnection.show();
+                    }
+                }
+            });
+        }
+    });
+
     $("#validateLogin").click(function(){
 
-        login = $('#login').val();
-        if (login.length > 0){
-            $("#loginNonActive").hide("slow", function(){
-                alert("Vous pouvez maintenant naviguer dans votre espace");
+        let login = escapeHtmlSpecialChars($loginInput.val());
+        let pwd = escapeHtmlSpecialChars($passwordInput.val());
+        let msgFailure = "";
+
+        $passwordInstruction.hide();
+        $LoginInstruction.hide();
+
+        if( login.length < 5 && pwd.length < 8) {
+            msgFailure = "Identifiants incorrects"
+            $msgConnection.html(msgFailure);
+            $msgConnection.show();
+        } else {
+            $msgConnection.html('')
+            const jsonData = {"login": login, "pwd": pwd};
+
+            $.ajax({
+                type: 'POST',
+                url: _URL + 'login',
+                dataType: 'json',
+                contentType: 'application/json',
+                crossDomain: false,
+                headers: {
+                    Accept: "application/json"
+                },
+                data: JSON.stringify(jsonData),
+                statusCode: {
+                    202: function(response) {
+                        status20xLoginAndRegister(login, response);
+                    },
+                    403: function() {
+                        status400Login(msgFailure);
+                    },
+                    404: function() {
+                        status400Login(msgFailure)
+                    }
+                }
             });
-            $("#loginActive").html("Bienvenue dans votre espace " + login);
+        }
+
+    });
+
+    $("#validateLogout").click(function(){
+
+        if( sessionStorage.getItem("pseudo") === null ) {
+            alert("Vous n'êtes pas connecté");
+        } else {
+            let login =  atob(sessionStorage.getItem("pseudo"))
+            const jsonData = {"login": login};
+
+            $.ajax({
+                type: 'POST',
+                url: _URL + 'logout',
+                dataType: 'json',
+                contentType: 'application/json',
+                crossDomain: false,
+                headers: {
+                    Accept: "application/json",
+                    Authorization: "Basic " +  sessionStorage.getItem("sid")
+                },
+                data: JSON.stringify(jsonData),
+                statusCode: {
+                    200: function() {
+                        sessionStorage.clear();
+                        alert("Vous êtes maintenant déconnecté");
+                        $("#ongletCitations").click();
+                        welcomeMessage();
+                    }
+                }
+            });
         }
 
     });
@@ -71,20 +179,12 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link");
         $("#ongletNewCitation").prop("class", "nav-link");
 
+        $tableCitationsMonEspace.hide();
+        hideformNewCitation();
         $("td").remove();
+        $msgNoContentToShow.html('');
 
-        if (login.length > 0){
-            $("#formAddFavori").show();
-            $("#validateFavori").show();
-
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide()
-
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $tableCitations.show();
-            hideformNewCitation();
+        if ( sessionStorage.getItem("sid") !== null ){
 
             // Send request
             // GET ALL CITATIONS
@@ -93,38 +193,23 @@ $(document).ready(function(){
                 url: _URL + 'citations',
                 dataType: 'json',
                 crossDomain: false,
-                success: function(citations) {
-                    $.each(citations, function(index, citation) {
-                        let id = citation._id.$oid;
-                        let auteur = citation.author;
-                        let annee = citation.year;
-                        let citatio = citation.citation;
-
-                        if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-                            auteur='Inconnu';
-                        }
-                        if (annee === undefined  || annee === null || annee.length === 0 ) {
-                            annee="N/A";
-                        }
-
-                        $tableCitations.append('<tr><td>' + id + '</td><td>'+ citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-                    });
+                headers: {
+                    Accept: "application/json",
+                    Authorization: "Basic " +  sessionStorage.getItem("sid")
+                },
+                statusCode: {
+                    200: function(citations) {
+                        status200MonEspace(citations, "ongletCitations");
+                    },
+                    401: function() {
+                        $tableCitationsMonEspace.hide();
+                        hideformNewCitation();
+                        endSession();
+                    }
                 }
             });
-
-
         } else {
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-            
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide();
-
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $tableCitations.hide();
-            hideformNewCitation();
+            $tableCitationsMonEspace.hide();
         }
 
     });
@@ -136,65 +221,36 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link");
         $("#ongletNewCitation").prop("class", "nav-link");
 
+        $tableCitationsMonEspace.hide();
+        hideformNewCitation();
         $("td").remove();
+        $msgNoContentToShow.html('');
 
-        if( login.length === 0) {
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide();
-
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-
-            $tableCitations.hide();
-            hideformNewCitation();
-
-        } else {
-            $("#formDeleteFavori").show();
-            $('#deleteFavori').show();
-
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-
-            $tableCitations.show();
-            hideformNewCitation();
+        if ( sessionStorage.getItem("sid") !== null ){
 
             // Send request
             // GET ALL LOGIN FAVORITES
-            const jsonData = {"Poster": login};
+            const jsonData = {"Poster": atob(sessionStorage.getItem("pseudo"))};
             $.ajax({
                 type: 'POST',
                 url: _URL + 'citation/favoris/mesCitations',
                 dataType: "json",
+                contentType: 'application/json',
                 crossDomain: false,
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json"
+                    Accept: "application/json",
+                    Authorization: "Basic " +  sessionStorage.getItem("sid")
                 },
                 data: JSON.stringify(jsonData),
-                success: function(citations) {
-                    $.each(citations, function(index, citation) {
-                        let id = citation._id.$oid;
-                        let auteur = citation.author;
-                        let annee = citation.year;
-                        let citatio = citation.citation;
-
-                        if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-                            auteur='Inconnu';
-                        }
-                        if (annee === undefined  || annee === null || annee.length === 0 ) {
-                            annee="N/A";
-                        }
-
-                        //$tableCitations.append('<tr><td>'+ id + '</td><td>' + citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-                        $tableCitations.append('<tr><td><button class="btn btn-outline-info" onclick="deleteCitation(\'' + id + '\')">Se connecter</button></td><td>' + citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-
-                    });
+                statusCode: {
+                    200: function(citations) {
+                        status200MonEspace(citations, "ongletFavoris");
+                    },
+                    401: function() {
+                        $tableCitationsMonEspace.hide();
+                        hideformNewCitation();
+                        endSession();
+                    }
                 }
             });
         }
@@ -207,63 +263,36 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link active");
         $("#ongletNewCitation").prop("class", "nav-link");
 
+        $tableCitationsMonEspace.hide();
+        hideformNewCitation();
         $("td").remove();
+        $msgNoContentToShow.html('');
 
-        if( login.length === 0) {
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide();
-
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-
-            $tableCitations.hide();
-            hideformNewCitation();
-
-        } else {
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide();
-
-            $("#formDeleteCitation").show();
-            $('#deleteCitation').show();
-
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-
-            $tableCitations.show();
-            hideformNewCitation();
+        if ( sessionStorage.getItem("sid") !== null ){
 
             // Send request
             // GET ALL LOGIN FAVORITES
-            const jsonData = {"Poster": login};
+            const jsonData = {"Poster": atob(sessionStorage.getItem("pseudo"))};
             $.ajax({
                 type: 'POST',
                 url: _URL + 'citation/post/mesCitations',
                 dataType: "json",
+                contentType: 'application/json',
                 crossDomain: false,
                 headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json"
+                    Accept: "application/json",
+                    Authorization: "Basic " +  sessionStorage.getItem("sid")
                 },
                 data: JSON.stringify(jsonData),
-                success: function(citations) {
-                    $.each(citations, function(index, citation) {
-                        let id = citation._id.$oid;
-                        let auteur = citation.author;
-                        let annee = citation.year;
-                        let citatio = citation.citation;
-
-                        if (auteur === undefined  || auteur === null || auteur.length === 0 ) {
-                            auteur='Inconnu';
-                        }
-                        if (annee === undefined  || annee === null || annee.length === 0 ) {
-                            annee="N/A";
-                        }
-
-                        $tableCitations.append('<tr><td>'+ id + '</td><td>' + citatio + '</td><td>'+ auteur +  '</td><td>'+ annee + '</td></tr>');
-                    });
+                statusCode: {
+                    200: function(citations) {
+                        status200MonEspace(citations, "ongletPost");
+                    },
+                    401: function() {
+                        $tableCitationsMonEspace.hide();
+                        hideformNewCitation();
+                        endSession();
+                    }
                 }
             });
         }
@@ -276,147 +305,47 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link");
         $("#ongletNewCitation").prop("class", "nav-link active");
 
+        $tableCitationsMonEspace.hide();
+        hideformNewCitation();
         $("td").remove();
+        $msgNoContentToShow.html('');
 
-        if( login.length === 0) {
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide();
+        if ( sessionStorage.getItem("sid") !== null ){
 
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-
-            $tableCitations.hide();
-
-        } else {
-            $("#formDeleteFavori").hide();
-            $('#deleteFavori').hide();
-
-            $("#formDeleteCitation").hide();
-            $('#deleteCitation').hide();
-
-            $("#formAddFavori").hide();
-            $("#validateFavori").hide();
-
-            $tableCitations.hide();
-
-            $formNewCitationLabelAuteur.show();
-            $formNewCitationInputAuteur.show();
-            $formNewCitationLabelAnnee.show();
-            $formNewCitationInputAnnee.show();
-            $formNewCitationLabelNationalite.show();
-            $formNewCitationInputNationalite.show();
-            $formNewCitationLabelCitation.show();
-            $formNewCitationInputCitation.show();
-            $ButtonAddNewCitation.show();
-
-        }
-    });
-
-    $("#validateFavori").click(function(){
-        if (login.length > 0){
-            let citationId = $('#inputAddFavori').val();
-
-            if(citationId === null || citationId.length === 0){
-                $("#toastMissiingId").toast('show');
-            } else {
-                // Send request
-                // ADD A FAVORITE
-                const jsonData = {"citationId": citationId, "Poster": login};
-                $.ajax({
-                    type: 'POST',
-                    url: _URL + 'citation/favoris/add',
-                    dataType: "json",
-                    crossDomain: false,
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
+            $.ajax({
+                type: 'GET',
+                url: _URL + 'authorization',
+                dataType: 'json',
+                contentType: 'application/json',
+                crossDomain: false,
+                headers: {
+                    Accept: "application/json",
+                    Authorization: "Basic " +  sessionStorage.getItem("sid")
+                },
+                statusCode: {
+                    200: function() {
+                        showformNewCitation();
                     },
-                    data: JSON.stringify(jsonData),
-                    success: function() {
-                        $("#toastAjout").toast('show');
+                    401: function() {
+                        $tableCitationsMonEspace.hide();
+                        hideformNewCitation();
+                        endSession();
                     }
-                });
-            }
-
-        } else {
-            alert("Identifiez-vous avant d'ajouter des favoris");
+                }
+            });
         }
     });
 
-    $("#deleteFavori").click(function(){
-        if (login.length > 0){
-            let citationId = $('#inputDeleteFavori').val();
+    $("#ButtonAddNewCitation").click(function(){;
 
-            if(citationId === null || citationId.length === 0){
-                $("#toastMissiingId").toast('show');
-            } else {
-                // Send request
-                // DELETE A FAVORITE
-                const jsonData = {"citationId": citationId, "Poster": login};
-                $.ajax({
-                    type: 'POST',
-                    url: _URL + 'citation/favoris/del',
-                    dataType: "json",
-                    crossDomain: false,
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
-                    },
-                    data: JSON.stringify(jsonData),
-                    success: function() {
-                        $("#toastDeleteFavori").toast('show');
-                    }
-                });
-            }
-
-        } else {
-            alert("Identifiez-vous avant de supprimer des favoris");
-        }
-    });
-
-    $("#deleteCitation").click(function(){
-        if (login.length > 0){
-            let citationId = $('#inputDeleteCitation').val();
-
-            if(citationId === null || citationId.length === 0){
-                $("#toastMissiingId").toast('show');
-            } else {
-                // Send request
-                // DELETE A CITATION
-                const jsonData = {"citationId": citationId, "Poster": login};
-                $.ajax({
-                    type: 'DELETE',
-                    url: _URL + 'citation/delete/macitation',
-                    dataType: "json",
-                    crossDomain: false,
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
-                    },
-                    data: JSON.stringify(jsonData),
-                    success: function() {
-                        $("#toastDeleteCitation").toast('show');
-                    }
-                });
-            }
-
-        } else {
-            alert("Identifiez-vous avant de supprimer des citations");
-        }
-    });
-
-    $("#ButtonAddNewCitation").click(function(){
-        if (login.length > 0){
+        if ( sessionStorage.getItem("sid") !== null ){
 
             let author = $formNewCitationInputAuteur.val();
             let annee = $formNewCitationInputAnnee.val();
             let nationalite =$formNewCitationInputNationalite.val();
             let citation =$formNewCitationInputCitation.val();
 
-            if(citation.length === 0){
+            if ( citation.length === 0 ) {
                 alert("La citation est obligatoire");
             } else {
                 // Send request
@@ -426,27 +355,31 @@ $(document).ready(function(){
                     "citation": citation,
                     "year": annee,
                     "nationality": nationalite,
-                    "Poster" : login
+                    "Poster" : atob(sessionStorage.getItem("pseudo"))
                 };
                 $.ajax({
                     type: 'POST',
                     url: _URL + 'citation/ajouter',
                     dataType: "json",
+                    contentType: 'application/json',
                     crossDomain: false,
                     headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
+                        Accept: "application/json",
+                        Authorization: "Basic " +  sessionStorage.getItem("sid")
                     },
                     data: JSON.stringify(jsonData),
-                    success: function() {
-                        $("#toastDeleteCitation").toast('show');
+                    statusCode: {
+                        200: function() {
+                            $toastInfoMonEspaceMessage.html('La citation a été ajoutée');
+                            $toastInfoMonEspace.toast('show');
+                        },
+                        401: function() {
+                            alert("La citation n'a pas pû être ajoutée");
+                        }
                     }
                 });
 
-                $formNewCitationInputAuteur.val("");
-                $formNewCitationInputAnnee.val("");
-                $formNewCitationInputNationalite.val("");
-                $formNewCitationInputCitation.val("");
+                emptyFormAddCitation();
             }
 
         } else {

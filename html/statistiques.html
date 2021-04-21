@@ -20,11 +20,13 @@
 <h1 id="test" style="margin-top: 20px;">Statistiques</h1>
 <br>
 
+<div id="accessStatDenied"></div>
+
 <p class="badge rounded-pill text-wrap">Les 3 citations les plus mises en favoris (avec nombre de fois où elle a été mise en favoris)</p>
 <br>
 <table id="tableTopFavoris">
   <tr>
-    <th>Id</th>
+    <th>Auteur</th>
     <th>Citation</th>
     <th>Nombre de Likers</th>
   </tr>
@@ -52,14 +54,14 @@
 <p id="anonymCitations"></p>
 <br>
 
-<button class="btn btn-primary" onclick="sendcookie()">SEND A COOKIE</button>
-<p id="sess"></p>
-
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <!-- Option 1: Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
 <!-- My JS -->
+<script src="../js/url.js"></script>
+<script src="../js/Citation.js"></script>
+<script src="../js/util.js"></script>
 <script src="../js/scriptStatistiques.js"></script>
 
 </body>
