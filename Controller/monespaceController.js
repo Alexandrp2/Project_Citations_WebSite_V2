@@ -10,6 +10,22 @@ let $loginNonActive = $('#loginNonActive');
 let $toastInfoMonEspaceMessage = $('#toastInfoMonEspaceMessage');
 let $toastInfoMonEspace = $('#toastInfoMonEspace');
 let $msgNoContentToShow = $('#msgNoContentToShow');
+let $msgFormComplete = $('#msgFormComplete');
+let $errorMsg = $('.MsgFailureToConnect');
+
+// Form Inscription / New Password / Reset Password
+let $formIdentificationinputPseudoLabel = $('#formIdentificationPseudoLabel');
+let $formIdentificationinputPseudoInput = $('#formIdentificationPseudoInput');
+let $formIdentificationCurrentPwdLabel = $('#formIdentificationCurrentPwdLabel');
+let $formIdentificationCurrentPwdInput = $('#formIdentificationCurrentPwdInput');
+let $formIdentificationNewPwdLabel = $('#formIdentificationNewPwdLabel');
+let $formIdentificationNewPwdInput = $('#formIdentificationNewPwdInput');
+let $formIdentificationNewPwdConfirmLabel = $('#formIdentificationNewPwdConfirmLabel');
+let $formIdentificationNewPwdConfirmInput = $('#formIdentificationNewPwdConfirmInput');
+let $formIdentificationEmailLabel = $('#formIdentificationEmailLabel');
+let $formIdentificationEmailInput = $('#formIdentificationEmailInput');
+let $formIdentificationValidateButton = $('#formIdentificationValidateButton');
+let $titreIdentificationForm = $('#titreIdentificationForm');
 
 // Form new citation
 let $formNewCitationLabelAuteur = $('#auteurLabel');
@@ -24,31 +40,151 @@ let $ButtonAddNewCitation = $('#ButtonAddNewCitation');
 
 $(document).ready(function(){
 
-    $LoginInstruction.hide();
-    $passwordInstruction.hide();
-    $msgConnection.hide();
-    hideformNewCitation();
-    $tableCitationsMonEspace.hide();
-
+    cleanMonEspaceOnChangeTab();
     welcomeMessage();
+    formInstructionsHandler();
 
-    $loginInput.on({
-        focus: function(){
-            $msgConnection.hide();
-            $LoginInstruction.show();
-        },
-        mouseleave: function(){
-            $LoginInstruction.hide();
-        }
+    $("#register").click(function(){
+        showFormRegister();
     });
-    $passwordInput.on({
-        focus: function(){
-            $msgConnection.hide();
-            $passwordInstruction.show();
-        },
-        mouseleave: function(){
-            $passwordInstruction.hide();
+
+    $("#changePwd").click(function(){
+        showFormChangePassword();
+    });
+
+    $("#forgotPwd").click(function(){
+        showFormResetPassword();
+    });
+
+    $formIdentificationValidateButton.click(function(){
+
+        let actionType = $formIdentificationValidateButton.text()
+
+        let form_pseudo = escapeHtmlSpecialChars($formIdentificationinputPseudoInput.val());
+        let form_currentPwd = escapeHtmlSpecialChars($formIdentificationCurrentPwdInput.val());
+        let form_newPwd = escapeHtmlSpecialChars($formIdentificationNewPwdInput.val());
+        let form_newPwdConfirm = escapeHtmlSpecialChars($formIdentificationNewPwdConfirmInput.val());
+        let form_email = escapeHtmlSpecialChars($formIdentificationEmailInput.val());
+
+        // Cas : Changer le mot passe
+        if( actionType.includes("Changer") ) {
+            let checkInputs = checkFormChangePwd(form_pseudo, form_currentPwd, form_newPwd, form_newPwdConfirm, form_email);
+            if ( checkInputs.length > 0 ){
+                $msgFormComplete.html(checkInputs);
+            } else {
+                $msgFormComplete.html('')
+                const jsonData = {"login": form_pseudo, "currentPwd": form_currentPwd, "newPwd": form_newPwd, "mailUser": form_email};
+
+                $.ajax({
+                    type: 'POST',
+                    url: _URL + 'updatepassword',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    crossDomain: false,
+                    headers: {
+                        Accept: "application/json"
+                    },
+                    data: JSON.stringify(jsonData),
+                    statusCode: {
+                        200: function(response) {
+                            emptyFormComplete();
+                            $(".newLine").html('');
+                            $msgFormComplete.html('');
+                            hideFormComplete();
+                            alert('Opération effectuée avec succés');
+                            //openSession(login, response);
+                            //status20xLoginAndRegister();
+                        },
+                        403: function() {
+                            $msgFormComplete.html("Vous n'avez pas pu être enregistré(e) car ce pseudo existe déjà.");
+                            $msgFormComplete.show();
+                        },
+                        404: function() {
+                            $msgFormComplete.html("Identifiants non trouvés.");
+                            $msgFormComplete.show();
+                        }
+                    }
+                });
+            }
         }
+
+        // Cas : oubli du mot de passe
+        if( actionType.includes("nouveau") ) {
+            let checkInputs = checkFormForgotPwd(form_pseudo, form_email);
+            if ( checkInputs.length > 0 ){
+                $msgFormComplete.html(checkInputs);
+            } else {
+
+                $msgFormComplete.html('')
+                const jsonData = {"login": form_pseudo, "mailUser": form_email};
+
+                $.ajax({
+                    type: 'POST',
+                    url: _URL + 'resetpassword',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    crossDomain: false,
+                    headers: {
+                        Accept: "application/json"
+                    },
+                    data: JSON.stringify(jsonData),
+                    statusCode: {
+                        200: function(response) {
+                            emptyFormComplete();
+                            $(".newLine").html('');
+                            $msgFormComplete.html('');
+                            hideFormComplete();
+                            alert('Un mot de passe vient de vous être envoyé à votre addresse email');
+                            //openSession(login, response);
+                            //status20xLoginAndRegister();
+                        },
+                        204: function() {
+                            $msgFormComplete.html("Identifiants non trouvés.");
+                            $msgFormComplete.show();
+                        }
+                    }
+                });
+            }
+        }
+
+        // Cas : register
+        if( actionType.includes("inscris") ) {
+            let checkInputs = checkFormRegister(form_pseudo, form_newPwd, form_newPwdConfirm, form_email);
+            if ( checkInputs.length > 0 ){
+                $msgFormComplete.html(checkInputs);
+            } else {
+                $msgFormComplete.html('')
+                const jsonData = {"login": form_pseudo, "pwd": form_newPwd, "mail": form_email};
+
+                $.ajax({
+                    type: 'POST',
+                    url: _URL + 'register',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    crossDomain: false,
+                    headers: {
+                        Accept: "application/json"
+                    },
+                    data: JSON.stringify(jsonData),
+                    statusCode: {
+                        201: function(response) {
+                            emptyFormComplete();
+                            $(".newLine").html('');
+                            $msgFormComplete.html('');
+                            hideFormComplete();
+                            alert('Votre inscription est validée, vous pouvez maintenant vous connecter');
+                            //openSession(login, response);
+                            //status20xLoginAndRegister();
+                        },
+                        403: function() {
+                            $msgFormComplete.html("Vous n'avez pas pu être enregistré(e) car ce pseudo existe déjà.");
+                            $msgFormComplete.show();
+                        }
+                    }
+                });
+            }
+        }
+
     });
 
     $("#validateRegister").click(function(){
@@ -59,6 +195,8 @@ $(document).ready(function(){
 
         $passwordInstruction.hide();
         $LoginInstruction.hide();
+        hideFormComplete();
+        $(".newLine").html('');
 
         if (login.length < 5) {
             msgFailure = msgFailure + "Le login ne respecte pas la contrainte de longueur.</br>";
@@ -86,7 +224,8 @@ $(document).ready(function(){
                 data: JSON.stringify(jsonData),
                 statusCode: {
                     201: function(response) {
-                        status20xLoginAndRegister(login, response);
+                        openSession(login, response);
+                        status20xLoginAndRegister();
                     },
                     403: function() {
                         $msgConnection.html("Vous n'avez pas pu être enregistré(e) car ce pseudo existe déjà.");
@@ -105,6 +244,9 @@ $(document).ready(function(){
 
         $passwordInstruction.hide();
         $LoginInstruction.hide();
+        hideFormComplete();
+        $errorMsg.html('');
+        $(".newLine").html('');
 
         if( login.length < 5 && pwd.length < 8) {
             msgFailure = "Identifiants incorrects"
@@ -126,7 +268,8 @@ $(document).ready(function(){
                 data: JSON.stringify(jsonData),
                 statusCode: {
                     202: function(response) {
-                        status20xLoginAndRegister(login, response);
+                        openSession(login, response);
+                        status20xLoginAndRegister();
                     },
                     403: function() {
                         status400Login(msgFailure);
@@ -141,6 +284,9 @@ $(document).ready(function(){
     });
 
     $("#validateLogout").click(function(){
+
+        hideFormComplete();
+        $(".newLine").html('');
 
         if( sessionStorage.getItem("pseudo") === null ) {
             alert("Vous n'êtes pas connecté");
@@ -179,10 +325,7 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link");
         $("#ongletNewCitation").prop("class", "nav-link");
 
-        $tableCitationsMonEspace.hide();
-        hideformNewCitation();
-        $("td").remove();
-        $msgNoContentToShow.html('');
+        cleanMonEspaceOnChangeTab();
 
         if ( sessionStorage.getItem("sid") !== null ){
 
@@ -221,10 +364,7 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link");
         $("#ongletNewCitation").prop("class", "nav-link");
 
-        $tableCitationsMonEspace.hide();
-        hideformNewCitation();
-        $("td").remove();
-        $msgNoContentToShow.html('');
+        cleanMonEspaceOnChangeTab();
 
         if ( sessionStorage.getItem("sid") !== null ){
 
@@ -263,10 +403,7 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link active");
         $("#ongletNewCitation").prop("class", "nav-link");
 
-        $tableCitationsMonEspace.hide();
-        hideformNewCitation();
-        $("td").remove();
-        $msgNoContentToShow.html('');
+        cleanMonEspaceOnChangeTab();
 
         if ( sessionStorage.getItem("sid") !== null ){
 
@@ -305,10 +442,7 @@ $(document).ready(function(){
         $("#ongletCitationsPostees").prop("class", "nav-link");
         $("#ongletNewCitation").prop("class", "nav-link active");
 
-        $tableCitationsMonEspace.hide();
-        hideformNewCitation();
-        $("td").remove();
-        $msgNoContentToShow.html('');
+        cleanMonEspaceOnChangeTab();
 
         if ( sessionStorage.getItem("sid") !== null ){
 
@@ -374,7 +508,11 @@ $(document).ready(function(){
                             $toastInfoMonEspace.toast('show');
                         },
                         401: function() {
-                            alert("La citation n'a pas pû être ajoutée");
+                            $tableCitationsMonEspace.hide();
+                            hideformNewCitation();
+                            endSession();
+                            $("#ongletCitations").click();
+                            welcomeMessage();
                         }
                     }
                 });

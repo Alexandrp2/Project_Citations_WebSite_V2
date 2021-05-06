@@ -5,11 +5,13 @@ body{
 .nav-pills{
 	background-color:#05385f;
 	border-bottom: 2px solid Azure;
-
 }
+
 .nav-link{
 	color: #ffffff;
+	cursor: pointer;
 }
+
 p, div, h1, h2{
 	color: #b4babb;
 	font-weight: normal;
@@ -17,6 +19,7 @@ p, div, h1, h2{
 h1, h2{
 	margin-top: 20px;
 }
+
 h2{
 	margin-bottom: 20px;
 }
@@ -24,9 +27,11 @@ h2{
 table, th, td {
 	border: 1px solid PowderBlue;
 }
+
 th, td {
 	padding: 15px;
 }
+
 th {
 	text-align: center;
 	color: white;
@@ -35,6 +40,7 @@ th {
 tr{
 	background-color: Azure;
 }
+
 tr:hover {
 	background-color: #b4babb;
 }
@@ -53,4 +59,16 @@ tr:hover {
 	background-color: Azure;
 }
 
+.identificationInstructions{
+	color: forestgreen;
+}
+
+.MsgFailureToConnect{
+	color: crimson;
+}
+
+.optionsFormComplete:hover{
+	cursor: pointer;
+	font-weight: bold;
+}
 

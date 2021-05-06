@@ -90,7 +90,8 @@ $(document).ready(function(){
         crossDomain: false,
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json"
+          Accept: "application/json",
+          'Referrer-Policy': 'no-referrer-when-downgrade'
         },
         data: JSON.stringify(jsonData),
         statusCode: {

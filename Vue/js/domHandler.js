@@ -21,39 +21,37 @@ function status204Citations(){
     $('#noResultMsg').text('Aucun résultat correspondant à votre recherche');
 }
 
-function escapeHtmlSpecialChars(text) {
-    var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-
-    return text.replace(/[&<>"']/g, function(txt) {
-        return map[txt];
-    });
+function cleanMonEspaceOnChangeTab() {
+    $tableCitationsMonEspace.hide();
+    hideformNewCitation();
+    hideFormComplete();
+    $LoginInstruction.hide();
+    $passwordInstruction.hide();
+    $("td").remove();
+    $(".newLine").html('');
+    $msgNoContentToShow.html('');
+    $errorMsg.html('');
 }
 
-
-/*
- * MONESPACE
- */
-
-/*
- * Password OWASP Recommendation
- *  -  Minimum length of the passwords should be enforced by the application.
- *     Passwords shorter than 8 characters are considered to be weak (NIST SP800-63B).
- *  - Maximum password length should not be set too low, as it will prevent users from creating passphrases.
- *    A common maximum length is 64 characters due to limitations in certain hashing algorithms
- *
- * At least 8 characters and max 64, with a minimum of 1 letter Uppercase, 1 letter lowercase1 digit, 1 special char (!#$%&?"<>*)
- */
-
-function isPasswordMatchingConstraints(pwd) {
-    let pattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,}/g;
-    let resultCheckMatching = pattern.test(pwd);
-    return resultCheckMatching;
+function formInstructionsHandler() {
+    $formIdentificationinputPseudoInput.on({
+        focus: function(){
+            $msgConnection.hide();
+            $LoginInstruction.show();
+        },
+        mouseleave: function(){
+            $LoginInstruction.hide();
+        }
+    });
+    $formIdentificationNewPwdInput.on({
+        focus: function(){
+            $msgConnection.hide();
+            $passwordInstruction.show();
+        },
+        mouseleave: function(){
+            $passwordInstruction.hide();
+        }
+    });
 }
 
 function hideformNewCitation(){
@@ -94,11 +92,10 @@ function welcomeMessage() {
     }
 }
 
-function status20xLoginAndRegister(login, response) {
-    sessionStorage.setItem("pseudo", btoa(login));
-    sessionStorage.setItem("sid", btoa(response.sid));
+function status20xLoginAndRegister() {
     $loginInput.val('');
     $passwordInput.val('');
+    $errorMsg.html('');
     $msgConnection.hide();
     $loginActive.show();
     $("#ongletCitations").click();
@@ -155,7 +152,7 @@ function status200MonEspace(citations, onglet){
         $msgNoContentToShow.html('Pas de contenu à afficher pour l\'instant ...');
     }
 }
-
+/*
 function sendAddDeleteRequests(idCitation, operation){
     let url_path = "";
     let $simulateClick = null;
@@ -226,7 +223,7 @@ async function removeFavori(idCitation){
 function addFavori(idCitation){
     sendAddDeleteRequests(idCitation, "addFavori");
 }
-
+*/
 function emptyFormAddCitation() {
     $formNewCitationInputAuteur.val("");
     $formNewCitationInputAnnee.val("");
@@ -234,35 +231,85 @@ function emptyFormAddCitation() {
     $formNewCitationInputCitation.val("");
 }
 
-function endSession() {
-    sessionStorage.clear();
-    alert("Votre session a exipirée, vous avez été déconnecté");
-    welcomeMessage();
+function hideFormComplete() {
+    $formIdentificationinputPseudoLabel.hide();
+    $formIdentificationinputPseudoInput.hide();
+    $formIdentificationCurrentPwdLabel.hide();
+    $formIdentificationCurrentPwdInput.hide();
+    $formIdentificationNewPwdLabel.hide();
+    $formIdentificationNewPwdInput.hide();
+    $formIdentificationNewPwdConfirmLabel.hide();
+    $formIdentificationNewPwdConfirmInput.hide();
+    $formIdentificationEmailLabel.hide();
+    $formIdentificationEmailInput.hide();
+    $formIdentificationValidateButton.hide();
+    $titreIdentificationForm.hide();
 }
 
-/*
-  * ***********   NOTE  **************
-  * This scrypt feature is available only
-  * - in secure contexts (HTTPS),
-  * - in some or all supporting browsers.
- */
-
-async function sha256(message) {
-    // encode as UTF-8
-    const msgBuffer = new TextEncoder().encode(message);
-
-    // hash the message
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-
-    // convert ArrayBuffer to Array
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-    // convert bytes to hex string
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
+function showFormChangePassword() {
+    emptyFormComplete();
+    $errorMsg.html('');
+    $(".newLine").html('');
+    $formIdentificationinputPseudoLabel.show();
+    $formIdentificationinputPseudoInput.show();
+    $formIdentificationCurrentPwdLabel.show();
+    $formIdentificationCurrentPwdInput.show();
+    $formIdentificationNewPwdLabel.show();
+    $formIdentificationNewPwdInput.show();
+    $formIdentificationNewPwdConfirmLabel.show();
+    $formIdentificationNewPwdConfirmInput.show();
+    $formIdentificationEmailLabel.show();
+    $formIdentificationEmailInput.show();
+    $formIdentificationValidateButton.html('Changer mon mot de passe');
+    $formIdentificationValidateButton.show();
+    $(".newLine").html('<br>');
 }
 
-/*
- * STATISTIQUES
- */
+function showFormResetPassword() {
+    emptyFormComplete();
+    $errorMsg.html('');
+    $(".newLine").html('');
+    $formIdentificationinputPseudoLabel.show();
+    $formIdentificationinputPseudoInput.show();
+    $formIdentificationCurrentPwdLabel.hide();
+    $formIdentificationCurrentPwdInput.hide();
+    $formIdentificationNewPwdLabel.hide();
+    $formIdentificationNewPwdInput.hide();
+    $formIdentificationNewPwdConfirmLabel.hide();
+    $formIdentificationNewPwdConfirmInput.hide();
+    $formIdentificationEmailLabel.show();
+    $formIdentificationEmailInput.show();
+    $formIdentificationValidateButton.html('Envoyez-moi un email avec mon nouveau mot de passe');
+    $formIdentificationValidateButton.show();
+    $(".newLine").html('<br>');
+
+}
+
+function showFormRegister() {
+    emptyFormComplete();
+    $errorMsg.html('');
+    $(".newLine").html('');
+    $formIdentificationinputPseudoLabel.show();
+    $formIdentificationinputPseudoInput.show();
+    $formIdentificationCurrentPwdLabel.hide();
+    $formIdentificationCurrentPwdInput.hide();
+    $formIdentificationNewPwdLabel.show();
+    $formIdentificationNewPwdInput.show();
+    $formIdentificationNewPwdConfirmLabel.show();
+    $formIdentificationNewPwdConfirmInput.show();
+    $formIdentificationEmailLabel.show();
+    $formIdentificationEmailInput.show();
+    $formIdentificationValidateButton.html('Je m\'inscris');
+    $formIdentificationValidateButton.show();
+    $(".newLine").append('<br>');
+}
+
+function emptyFormComplete() {
+    $formIdentificationinputPseudoInput.val('');
+    $formIdentificationCurrentPwdInput.val('');
+    $formIdentificationNewPwdInput.val('');
+    $formIdentificationNewPwdConfirmInput.val('');
+    $formIdentificationEmailInput.val('');
+}
+
 

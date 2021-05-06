@@ -7,21 +7,19 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
   <!-- My CSS -->
   <link rel="stylesheet" href="../css/style.css">
-
-
 </head>
 <body class="container">
 
   <!-- NAVBAR -->
   <nav class="nav nav-pills">
-    <a class="nav-link" aria-current="page" href="../index.html">Citations</a>
+    <a class="nav-link" aria-current="page" href="index.html">Citations</a>
     <a class="nav-link active" href="monespace.html">Mon espace</a>
     <a class="nav-link" href="statistiques.html">Statistiques</a>
   </nav>
   <br>
 
 
-  <!-- LOGIN -->
+  <!-- LOG FORM -->
   <div class="row col-12 d-flex justify-content-between" id="form">
     <form class="container-fluid col-12 d-flex justify-content-between">
       <div class="input-group d-flex justify-content-between">
@@ -31,15 +29,53 @@
       </div>
     </form>
   </div>
-  <div class="identificationInstructions" id="loginInstruction">Votre Pseudo doit contenir au moins 5 caractères</div>
-  <div class="identificationInstructions" id="passwordInstruction">Votre mot de passe doit contenir entre 8 et 64 caractères et avoir au moins : 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial</div>
   <br>
-  <div class="row col-12 d-flex justify-content-around">
-    <button class="btn btn-outline-success col-3" id="validateLogin" type="submit">Je me connecte</button>
-    <button class="btn btn-outline-success col-3" id="validateRegister" type="submit">Je m'inscris</button>
+
+  <!-- LOG OPTIONS -->
+  <div class="d-flex flex-row justify-content-end">
+    <div class="optionsFormComplete" id="register">Je m'inscris&nbsp;&nbsp;/&nbsp;&nbsp;</div>
+    <div class="optionsFormComplete" id="changePwd">Changer mon mot de passe&nbsp;&nbsp;/&nbsp;&nbsp;</div>
+    <div class="optionsFormComplete" id="forgotPwd">Mot de passe oublié ?&nbsp;&nbsp;&nbsp;&nbsp;</div>
+  </div>
+  <br>
+  <form>
+    <div class="form-group col-6">
+      <label for="formIdentificationPseudoInput" id="formIdentificationPseudoLabel">Pseudo</label>
+      <input type="text" class="form-control" id="formIdentificationPseudoInput">
+    </div>
+    <div class="identificationInstructions" id="loginInstruction">Votre Pseudo doit contenir au moins 5 caractères</div>
+
+    <div class="form-group col-6">
+      <label for="formIdentificationCurrentPwdInput" id="formIdentificationCurrentPwdLabel">Mot de passe actuel</label>
+      <input type="password" class="form-control" id="formIdentificationCurrentPwdInput">
+    </div>
+    <div class="form-group col-6">
+      <label for="formIdentificationNewPwdInput" id="formIdentificationNewPwdLabel">Mot de passe</label>
+      <input type="password" class="form-control" id="formIdentificationNewPwdInput">
+    </div>
+    <div class="identificationInstructions" id="passwordInstruction">Votre mot de passe doit contenir entre 8 et 64 caractères et avoir au moins : 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial</div>
+
+    <div class="form-group col-6">
+      <label for="formIdentificationNewPwdConfirmInput" id="formIdentificationNewPwdConfirmLabel">Confirmez le mot de passe</label>
+      <input type="password" class="form-control" id="formIdentificationNewPwdConfirmInput">
+    </div>
+    <div class="form-group col-6">
+      <label for="formIdentificationEmailInput" id="formIdentificationEmailLabel">Email</label>
+      <input type="email" class="form-control" id="formIdentificationEmailInput">
+    </div>
+  </form>
+  <div class="newLine"></div>
+  <div class="MsgFailureToConnect" id="msgFormComplete"></div>
+  <button type="submit" class="btn btn-success" id="formIdentificationValidateButton"></button>
+  <div class="newLine"></div>
+
+
+  <!-- LOG VALIDATION -->
+  <div class="row col-12 d-flex justify-content-end">
+    <button class="btn btn-outline-success col-3" id="validateLogin" type="submit" style="margin-right:20px">Je me connecte</button>
+    <!--<button class="btn btn-outline-success col-3" id="validateRegister" type="submit">Je m'inscris</button>-->
     <button class="btn btn-outline-success col-3" id="validateLogout" type="submit">Déconnexion</button>
   </div>
-
 
 
   <!-- ETAT DE L'AUTHENTIFICATION / MESSAGE -->
@@ -48,6 +84,7 @@
   <div id="loginActive"></div>
   <div class="MsgFailureToConnect" id="msgConnect"></div>
   <br>
+
 
   <!-- MENU DES DIFFERENTES OPTIONS DANS "MON ESPACE" -->
   <ul class="nav nav-tabs" style="margin-bottom: 20px;">
@@ -119,10 +156,13 @@
   <!-- Option 1: Bootstrap Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
   <!-- My JS -->
-  <script src="../js/url.js"></script>
-  <script src="../js/Citation.js"></script>
-  <script src="../js/util.js"></script>
-  <script src="../js/scriptMonespace.js"></script>
+  <script src="../../Controller/util/url.js"></script>
+  <script src="../../Controller/util/inputController.js"></script>
+  <script src="../../Controller/util/sessionStorageController.js"></script>
+  <script src="../../Controller/util/dbDDLOperationsController.js"></script>
+  <script src="../../Model/Citation.js"></script>
+  <script src="../js/domHandler.js"></script>
+  <script src="../../Controller/monespaceController.js"></script>
      
 </body>
 </html>

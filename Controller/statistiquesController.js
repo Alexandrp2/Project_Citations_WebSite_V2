@@ -176,6 +176,6 @@ $(document).ready(function(){
     else {
         $badge.hide();
         $tableTopFavoris.hide();
-        $accessStatDenied.html("L'accès à cette ressource est réservée aux personnes connctées");
+        $accessStatDenied.html("L'accès à cette ressource est réservée aux personnes connectées");
     }
 });
